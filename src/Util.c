@@ -9,6 +9,8 @@
 #include "Command.h"
 #include "Table.h"
 #include "SelectState.h"
+#define TRUE 1
+#define FALSE 0
 
 ///
 /// Allocate State_t and initialize some attributes
@@ -62,24 +64,176 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
     size_t idx;
     int limit = cmd->cmd_args.sel_args.limit;
     int offset = cmd->cmd_args.sel_args.offset;
-
+	int where = cmd->cmd_args.sel_args.where;
+	int whereOK = TRUE;
+	//printf("where bool:%d\n", cmd->cmd_args.sel_args.where);
+	
     if (offset == -1) {
         offset = 0;
     }
-
     if (idxList) {
         for (idx = offset; idx < idxListLen; idx++) {
             if (limit != -1 && (idx - offset) >= limit) {
                 break;
             }
-            print_user(get_User(table, idxList[idx]), &(cmd->cmd_args.sel_args));
+            
+           	print_user(get_User(table, idxList[idx]), &(cmd->cmd_args.sel_args));  
         }
     } else {
+    	int printed =0;
         for (idx = offset; idx < table->len; idx++) {
-            if (limit != -1 && (idx - offset) >= limit) {
-                break;
+            User_t *Utemp=get_User(table, idx);
+            if(where>=0)
+            {	
+            	if (limit != -1 && printed >= limit) 
+                	break;
+                	
+            	//perror("where check");
+            	int op=cmd->cmd_args.sel_args.operator1;
+            	int field1=cmd->cmd_args.sel_args.field1;
+            	int num1 = cmd->cmd_args.sel_args.num1;
+            	int num2 = cmd->cmd_args.sel_args.num2;
+            	char str1[50], str2[50];
+            	strcpy(str1, cmd->cmd_args.sel_args.str1);
+            	strcpy(str2, cmd->cmd_args.sel_args.str2);
+            	for(int i=0;i<4;i++)
+            	{
+            		if(field1==0)//id
+            		{
+            		//printf("now:%d\n", Utemp->id);
+            			if(op==0)//=
+            			{
+            				if(Utemp->id==num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==1)//!=
+            			{
+            				if(Utemp->id!=num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==2)//>
+            			{
+            				if(Utemp->id>num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==3)//<
+            			{
+            				if(Utemp->id<num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==4)//>=
+            			{
+            				if(Utemp->id>=num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==5)//<=
+            			{
+            				if(Utemp->id<=num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            		}
+            		else if(field1==1)//name
+            		{
+            			if(op==0)//=
+            			{
+            				if(!strcmp(Utemp->name, str1))
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==1)//!=
+            			{
+            				if(strcmp(Utemp->name, str1))
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            		}
+            		else if(field1==2)//email
+            		{
+            			if(op==0)//=
+            			{
+            				if(!strcmp(Utemp->email, str1))
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==1)//!=
+            			{
+            				if(strcmp(Utemp->email, str1))
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            		}
+            		else if(field1==3)//age
+            		{
+            			if(op==0)//=
+            			{
+            				if(Utemp->age==num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==1)//!=
+            			{
+            				if(Utemp->age!=num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==2)//>
+            			{
+            				if(Utemp->age>num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==3)//<
+            			{
+            				if(Utemp->age<num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==4)//>=
+            			{
+            				if(Utemp->age>=num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            			else if(op==5)//<=
+            			{
+            				if(Utemp->age<=num1)
+            					whereOK=TRUE;
+            				else
+            					whereOK=FALSE;
+            			}
+            		}
+            	}
+            }else
+            {
+            	if (limit != -1 && (idx - offset) >= limit) {
+                	break;
+            	}
             }
-            print_user(get_User(table, idx), &(cmd->cmd_args.sel_args));
+            if(whereOK){
+            	print_user(get_User(table, idx), &(cmd->cmd_args.sel_args));
+            	printed ++;
+            }
         }
     }
 }
@@ -177,8 +331,9 @@ int handle_insert_cmd(Table_t *table, Command_t *cmd) {
 int handle_select_cmd(Table_t *table, Command_t *cmd) {
     cmd->type = SELECT_CMD;
     field_state_handler(cmd, 1);
-
+	
     print_users(table, NULL, 0, cmd);
+    
     return table->len;
 }
 

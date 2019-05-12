@@ -25,6 +25,16 @@ typedef struct SelectArgs {
     size_t fields_len;
     int offset;
     int limit;
+    
+    int where;
+    int field1;
+    int field2;
+    int operator1;
+    int operator2;
+    double num1;
+    double num2;
+    char str1[50];
+    char str2[50];
 } SelectArgs_t;
 
 typedef union {
