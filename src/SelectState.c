@@ -95,7 +95,6 @@ int check_operator(Command_t *cmd, char* operate, int operator_num){
 			return 1;
 		}
 	}
-	
 	else if(strstr(operate, ">"))//>
 	{
 		if(strstr(operate, ">="))//>=
@@ -164,60 +163,88 @@ void where_state_handler(Command_t *cmd, size_t arg_idx) {
         {
             perror("name\n");
             cmd->cmd_args.sel_args.field1 = 1;
-            if(arg_idx < cmd->args_len) // check opeartor
+            if(strlen(cmd->args[arg_idx])>4)// name= x or name= x
             {
-        		arg_idx++;
-        		check_operator(cmd, cmd->args[arg_idx], 1);
-				
+            	int c_idx = 4 + check_operator(cmd, cmd->args[arg_idx], 1);
+            	if(cmd->args[arg_idx][c_idx]!='\0')// name=x
+            	{
+            		strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx] + c_idx);
+            	}
+            	else if(arg_idx < cmd->args_len) //name= x
+            	{
+            		arg_idx++;
+            		strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx]);
+            	}
+            	
+            }
+            else if(arg_idx < cmd->args_len) // name =x or name = x check opeartor
+            {
+        		arg_idx++; //=x or = x
+        		int c_idx =check_operator(cmd, cmd->args[arg_idx], 1);
+        		if(cmd->args[arg_idx][c_idx]!='\0') //=x
+        		{
+        			strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx] + c_idx);
+        		}
+        		else if(arg_idx < cmd->args_len) // = x check num
+            	{	
+        			arg_idx++;
+        			strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx]);       			
+        		}
         	}
-        	if(arg_idx < cmd->args_len) // cpy str
-            {
-        		arg_idx++;
-        		strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx]);
-        	}
-            /*if(strlen(cmd->args[arg_idx])>2)// id>x
-            {
-            	Spliter(cmd->args[arg_idx], 4, cmd);
-            }*/
         } 
         else if (!strncmp(cmd->args[arg_idx], "email", 5)) 
         {
             perror("email\n");
             cmd->cmd_args.sel_args.field1 = 2;
-            if(arg_idx < cmd->args_len) // check opeartor
+            if(strlen(cmd->args[arg_idx])>5)// email= x or email= x
             {
-            	arg_idx++;
-        		check_operator(cmd, cmd->args[arg_idx], 1);
+            	int c_idx = 5 + check_operator(cmd, cmd->args[arg_idx], 1);
+            	if(cmd->args[arg_idx][c_idx]!='\0')// email=x
+            	{
+            		strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx] + c_idx);
+            	}
+            	else if(arg_idx < cmd->args_len) //email= x
+            	{
+            		arg_idx++;
+            		strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx]);
+            	}
+            	
+            }
+            else if(arg_idx < cmd->args_len) // name =x or name = x check opeartor
+            {
+        		arg_idx++; //=x or = x
+        		int c_idx =check_operator(cmd, cmd->args[arg_idx], 1);
+        		if(cmd->args[arg_idx][c_idx]!='\0') //=x
+        		{
+        			strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx] + c_idx);
+        		}
+        		else if(arg_idx < cmd->args_len) // = x check num
+            	{	
+        			arg_idx++;
+        			strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx]);       			
+        		}
         	}
-        	if(arg_idx < cmd->args_len) // cpy str
-            {
-        		arg_idx++;
-        		strcpy(cmd->cmd_args.sel_args.str1,cmd->args[arg_idx]);
-        	}
-            /*if(strlen(cmd->args[arg_idx])>2)// id>x
-            {
-            	Spliter(cmd->args[arg_idx], 5, cmd);
-            }*/
+            
         } 
         else if (!strncmp(cmd->args[arg_idx], "age", 3)) 
         {
             perror("age\n");
             cmd->cmd_args.sel_args.field1 = 3;
-            if(strlen(cmd->args[arg_idx])>3)// age> x or id>x
+            if(strlen(cmd->args[arg_idx])>3)// age> x or age>x
             {
             	int c_idx = 3 + check_operator(cmd, cmd->args[arg_idx], 1);
-            	if(atoi(cmd->args[arg_idx]+c_idx))// id>x
+            	if(atoi(cmd->args[arg_idx]+c_idx))// 
             	{
             		cmd->cmd_args.sel_args.num1 = atoi(cmd->args[arg_idx]+c_idx);
             	}
-            	else if(arg_idx < cmd->args_len) //id> x
+            	else if(arg_idx < cmd->args_len) 
             	{
             		arg_idx++;
             		cmd->cmd_args.sel_args.num1 = atoi(cmd->args[arg_idx]);
             	}
             	
             }
-            else if(arg_idx < cmd->args_len) // id >x or id > x check opeartor
+            else if(arg_idx < cmd->args_len) //  check opeartor
             {
         		arg_idx++; //>x or >
         		int c_idx =check_operator(cmd, cmd->args[arg_idx], 1);
@@ -240,7 +267,10 @@ void where_state_handler(Command_t *cmd, size_t arg_idx) {
         if (arg_idx == cmd->args_len) {
             return;
         } 
-        
+        else if (arg_idx < cmd->args_len
+                && !strncmp(cmd->args[arg_idx], "and", 3)){
+                
+        }
         else if (arg_idx < cmd->args_len
                 && !strncmp(cmd->args[arg_idx], "offset", 6)){
             perror("in to offset");
