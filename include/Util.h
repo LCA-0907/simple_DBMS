@@ -18,4 +18,6 @@ int handle_insert_cmd(Table_t *table, Command_t *cmd);
 int handle_select_cmd(Table_t *table, Command_t *cmd);
 void print_help_msg();
 
+int where_ok_check(int op, int field1, int num1, char str1[50], User_t *Utemp);
+
 #endif

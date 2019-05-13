@@ -57,6 +57,141 @@ void print_user(User_t *user, SelectArgs_t *sel_args) {
     printf(")\n");
 }
 
+
+int where_ok_check(int op, int field1, int num1, char str1[50], User_t *Utemp)
+{
+	int whereOK=FALSE;
+	for(int i=0;i<4;i++)
+    {
+        if(field1==0)//id
+        {
+            if(op==0)//=
+            {
+            	if(Utemp->id==num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==1)//!=
+            {
+            	if(Utemp->id!=num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==2)//>
+            {
+            	if(Utemp->id>num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==3)//<
+            {
+            	if(Utemp->id<num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==4)//>=
+            {
+            	if(Utemp->id>=num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==5)//<=
+            {
+            	if(Utemp->id<=num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+        }
+        else if(field1==1)//name
+        {
+            if(op==0)//=
+            {
+            	if(!strcmp(Utemp->name, str1))
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==1)//!=
+            {
+            	if(strcmp(Utemp->name, str1))
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+        }
+        else if(field1==2)//email
+        {
+            if(op==0)//=
+            {
+            	if(!strcmp(Utemp->email, str1))
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==1)//!=
+            {
+            	if(strcmp(Utemp->email, str1))
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+        }
+        else if(field1==3)//age
+        {
+            if(op==0)//=
+            {
+            	if(Utemp->age==num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==1)//!=
+            {
+            	if(Utemp->age!=num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==2)//>
+            {
+            	if(Utemp->age>num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==3)//<
+            {
+            	if(Utemp->age<num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==4)//>=
+            {
+            	if(Utemp->age>=num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+            else if(op==5)//<=
+            {
+            	if(Utemp->age<=num1)
+            		whereOK=TRUE;
+            	else
+            		whereOK=FALSE;
+            }
+        }
+    }
+    return whereOK;
+}
+
+
 ///
 /// Print the users for given offset and limit restriction
 ///
@@ -65,7 +200,10 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
     int limit = cmd->cmd_args.sel_args.limit;
     int offset = cmd->cmd_args.sel_args.offset;
 	int where = cmd->cmd_args.sel_args.where;
+	int andor = cmd->cmd_args.sel_args.andor;
 	int whereOK = TRUE;
+	int whereOK1 = TRUE;
+	int whereOK2 = TRUE;
 	//printf("where bool:%d\n", cmd->cmd_args.sel_args.where);
 	
     if (offset == -1) {
@@ -86,144 +224,20 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
             if(where>=0)
             {	
             	if (limit != -1 && printed >= limit) 
-                	break;
-                	
+                	break;	
             	//perror("where check");
-            	int op=cmd->cmd_args.sel_args.operator1;
-            	int field1=cmd->cmd_args.sel_args.field1;
-            	int num1 = cmd->cmd_args.sel_args.num1;
-            	int num2 = cmd->cmd_args.sel_args.num2;
-            	char str1[50], str2[50];
-            	strcpy(str1, cmd->cmd_args.sel_args.str1);
-            	strcpy(str2, cmd->cmd_args.sel_args.str2);
-            	for(int i=0;i<4;i++)
+            	whereOK1 = where_ok_check(cmd->cmd_args.sel_args.operator1, cmd->cmd_args.sel_args.field1, cmd->cmd_args.sel_args.num1, cmd->cmd_args.sel_args.str1, Utemp);
+            	whereOK = whereOK1; 
+            	if(where==1)
             	{
-            		if(field1==0)//id
-            		{
-            		//printf("now:%d\n", Utemp->id);
-            			if(op==0)//=
-            			{
-            				if(Utemp->id==num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==1)//!=
-            			{
-            				if(Utemp->id!=num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==2)//>
-            			{
-            				if(Utemp->id>num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==3)//<
-            			{
-            				if(Utemp->id<num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==4)//>=
-            			{
-            				if(Utemp->id>=num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==5)//<=
-            			{
-            				if(Utemp->id<=num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            		}
-            		else if(field1==1)//name
-            		{
-            			if(op==0)//=
-            			{
-            				if(!strcmp(Utemp->name, str1))
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==1)//!=
-            			{
-            				if(strcmp(Utemp->name, str1))
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            		}
-            		else if(field1==2)//email
-            		{
-            			if(op==0)//=
-            			{
-            				if(!strcmp(Utemp->email, str1))
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==1)//!=
-            			{
-            				if(strcmp(Utemp->email, str1))
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            		}
-            		else if(field1==3)//age
-            		{
-            			if(op==0)//=
-            			{
-            				if(Utemp->age==num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==1)//!=
-            			{
-            				if(Utemp->age!=num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==2)//>
-            			{
-            				if(Utemp->age>num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==3)//<
-            			{
-            				if(Utemp->age<num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==4)//>=
-            			{
-            				if(Utemp->age>=num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            			else if(op==5)//<=
-            			{
-            				if(Utemp->age<=num1)
-            					whereOK=TRUE;
-            				else
-            					whereOK=FALSE;
-            			}
-            		}
+            		whereOK2 = where_ok_check(cmd->cmd_args.sel_args.operator2, cmd->cmd_args.sel_args.field2, cmd->cmd_args.sel_args.num2, cmd->cmd_args.sel_args.str2, Utemp);
+            		if(andor==1)//and
+            			whereOK = whereOK1 && whereOK2;
+            		else if(andor==2)//or
+            			whereOK = whereOK1 || whereOK2;
+            		
             	}
+            	
             }else
             {
             	if (limit != -1 && (idx - offset) >= limit) {
