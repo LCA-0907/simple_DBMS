@@ -293,7 +293,7 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
                 	printf("%d", printed);
             	}
         	}
-        printf(")\n");	
+        	printf(")\n");	
     	}
     }
 }
@@ -448,14 +448,14 @@ int handle_update_cmd(Table_t *table, Command_t *cmd){
 		}
 	}
 	
-	if(!strncmp(sel_args->fields[idx], "id", 2)){
+	if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "id", 2)){
 		if(OK_num > 1)// no use
 			;
 		else
 		{
 			for(idx=0 ; idx < table->len ; idx++)
 			{
-				if(idx == OK_query[0]
+				if(idx == OK_query[0])
 				{
 					User_t *Utemp=get_User(table, idx);
 					Utemp->id = cmd->cmd_args.sel_args.update_num;
@@ -463,15 +463,15 @@ int handle_update_cmd(Table_t *table, Command_t *cmd){
 			}
 		}	
     }
-    else if(!strncmp(sel_args->fields[idx], "name", 4)){
+    else if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "name", 4)){
     	for(idx=0 ; idx < table->len ; idx++)
     	{
     		
     	}
     }
-    else if(!strncmp(sel_args->fields[idx], "email", 5)){
+    else if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "email", 5)){
     }
-    else if(!strncmp(sel_args->fields[idx], "age", 3)){
+    else if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "age", 3)){
     }
 	
 	return updated_num;
