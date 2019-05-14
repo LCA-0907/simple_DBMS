@@ -21,7 +21,6 @@ void field_state_handler(Command_t *cmd, size_t arg_idx) {
     
    	cmd->cmd_args.sel_args.agg = 0;
     cmd->cmd_args.sel_args.sum = 0;
-    
     while(arg_idx < cmd->args_len) {
         if (!strncmp(cmd->args[arg_idx], "*", 1)) {
             add_select_field(cmd, cmd->args[arg_idx]);
@@ -54,6 +53,70 @@ void field_state_handler(Command_t *cmd, size_t arg_idx) {
     cmd->type = UNRECOG_CMD;
     return;
 }
+
+void update_field_handler(Command_t *cmd, size_t arg_idx){
+	cmd->cmd_args.sel_args.fields = NULL;
+    cmd->cmd_args.sel_args.fields_len = 0;
+    
+    cmd->cmd_args.sel_args.where = -1;
+    cmd->cmd_args.sel_args.field1 = -1;
+    cmd->cmd_args.sel_args.field2 = -1;
+    cmd->cmd_args.sel_args.operator1 = -1;
+    cmd->cmd_args.sel_args.operator2 = -1;
+    cmd->cmd_args.sel_args.num1 = -1;
+    cmd->cmd_args.sel_args.num2 = -1;
+    cmd->cmd_args.sel_args.andor = 0;
+        
+    cmd->cmd_args.sel_args.update_num = 0;
+    printf("update:");
+    while(arg_idx < cmd->args_len) {
+        if (!strncmp(cmd->args[arg_idx], "id", 2)) {
+            add_select_field(cmd, cmd->args[arg_idx]);
+        } else if (!strncmp(cmd->args[arg_idx], "name", 4)) {
+            add_select_field(cmd, cmd->args[arg_idx]);
+        } else if (!strncmp(cmd->args[arg_idx], "email", 5)) {
+            add_select_field(cmd, cmd->args[arg_idx]);
+        } else if (!strncmp(cmd->args[arg_idx], "age", 3)) {
+            add_select_field(cmd, cmd->args[arg_idx]);
+        } else if (!strncmp(cmd->args[arg_idx], "=", 4)){
+            update_table_handler(cmd, arg_idx+1);
+            return;
+        } else {
+            cmd->type = UNRECOG_CMD;
+            return;
+        }
+        arg_idx += 1;
+    }
+    cmd->type = UNRECOG_CMD;
+    return;
+
+}
+void update_table_handler(Command_t *cmd, size_t arg_idx){
+	if(arg_idx < cmd->args_len){
+		if (arg_idx == cmd->args_len) {
+            return;
+        }
+		else if(!strncmp(cmd->args[arg_idx], "\"", 1)){// str
+			strcpy(cmd->cmd_args.sel_args.update_str, cmd->args[arg_idx]);
+			printf("str %s\n",cmd->cmd_args.sel_args.update_str);
+			arg_idx++;
+		}
+		else if(atoi(cmd->args[arg_idx])){
+			cmd->cmd_args.sel_args.update_num = atoi(cmd->args[arg_idx]);
+			printf("num %d\n", cmd->cmd_args.sel_args.update_num);
+			arg_idx++;
+		}
+		else if(!strncmp(cmd->args[arg_idx], "where", 5)){
+			where_state_handler(cmd, arg_idx+1);
+			return;
+		}
+		else {
+			cmd->type = UNRECOG_CMD;
+			return;
+		}
+	}
+}
+
 
 void table_state_handler(Command_t *cmd, size_t arg_idx) {
     if (arg_idx < cmd->args_len

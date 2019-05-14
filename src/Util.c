@@ -278,8 +278,9 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
             	printed ++;
             }
         }
-        if(cmd->cmd_args.sel_args.agg)
+        if(cmd->cmd_args.sel_args.agg && offset == 0 && (limit >= 1 || limit == -1))
         {
+      	
         	printf("(");
     		for (idx = 0; idx < cmd->cmd_args.sel_args.fields_len; idx++) {
             	if (idx > 0) printf(", ");
@@ -360,10 +361,15 @@ int handle_query_cmd(Table_t *table, Command_t *cmd) {
     } else if (!strncmp(cmd->args[0], "select", 6)) {
         handle_select_cmd(table, cmd);
         return SELECT_CMD;
-    } else {
+    } else if (!strncmp(cmd->args[0], "update", 6)){
+    	handle_update_cmd(table, cmd);
+    	return UPDATE_CMD;
+    }else {
         return UNRECOG_CMD;
     }
 }
+
+
 
 ///
 /// The return value is the number of rows insert into table
@@ -392,6 +398,84 @@ int handle_select_cmd(Table_t *table, Command_t *cmd) {
     field_state_handler(cmd, 1);
     print_users(table, NULL, 0, cmd);
     return table->len;
+}
+
+///
+///
+///
+int handle_update_cmd(Table_t *table, Command_t *cmd){
+	int updated_num=0;
+	update_field_handler(cmd, 3);
+	size_t idx;
+	int OK_num=0;
+	int *OK_query=malloc(sizeof(int));
+	for(idx = 0 ; idx<table->len ; idx++)
+	{
+		int where = cmd->cmd_args.sel_args.where;
+        int andor = cmd->cmd_args.sel_args.andor;
+        int whereOK = TRUE;
+        int whereOK1 = TRUE;
+        int whereOK2 = TRUE;
+        User_t *Utemp=get_User(table, idx);
+        if(where>=0)
+        {		
+            //perror("where check");
+            whereOK1 = where_ok_check(cmd->cmd_args.sel_args.operator1, cmd->cmd_args.sel_args.field1, cmd->cmd_args.sel_args.num1, cmd->cmd_args.sel_args.str1, Utemp);
+            whereOK = whereOK1; 
+            if(where==1)
+            {
+            	whereOK2 = where_ok_check(cmd->cmd_args.sel_args.operator2, cmd->cmd_args.sel_args.field2, cmd->cmd_args.sel_args.num2, cmd->cmd_args.sel_args.str2, Utemp);
+            	if(andor==1)//and
+            		whereOK = whereOK1 && whereOK2;
+            	else if(andor==2)//or
+            		whereOK = whereOK1 || whereOK2;
+            	
+            }
+            if(whereOK)
+            {
+            	if(OK_query)
+            	{
+            		OK_query[OK_num] = idx;
+            		OK_num++;
+            		OK_query = realloc (OK_query, sizeof(int) * OK_num);
+            	}
+            	
+            }	
+        }
+        else 
+        {
+        	OK_num = table->len;
+		}
+	}
+	
+	if(!strncmp(sel_args->fields[idx], "id", 2)){
+		if(OK_num > 1)// no use
+			;
+		else
+		{
+			for(idx=0 ; idx < table->len ; idx++)
+			{
+				if(idx == OK_query[0]
+				{
+					User_t *Utemp=get_User(table, idx);
+					Utemp->id = cmd->cmd_args.sel_args.update_num;
+				}
+			}
+		}	
+    }
+    else if(!strncmp(sel_args->fields[idx], "name", 4)){
+    	for(idx=0 ; idx < table->len ; idx++)
+    	{
+    		
+    	}
+    }
+    else if(!strncmp(sel_args->fields[idx], "email", 5)){
+    }
+    else if(!strncmp(sel_args->fields[idx], "age", 3)){
+    }
+	
+	return updated_num;
+
 }
 
 ///

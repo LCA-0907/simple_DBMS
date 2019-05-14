@@ -10,6 +10,7 @@ enum {
 enum {
     INSERT_CMD = 100,
     SELECT_CMD,
+    UPDATE_CMD,
 };
 
 typedef struct {
@@ -33,8 +34,10 @@ typedef struct SelectArgs {
     int operator2;
     double num1;
     double num2;
-    char str1[50];
-    char str2[50];
+    char str1[256];
+    char str2[256];
+    char update_str[256];
+    int update_num;
     int andor; // and=1 or=2 
     
     int agg;
