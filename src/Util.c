@@ -191,6 +191,29 @@ int where_ok_check(int op, int field1, int num1, char str1[50], User_t *Utemp)
     return whereOK;
 }
 
+///
+/// calculate agg
+///
+void cal_agg(Command_t *cmd, User_t *user, SelectArgs_t *sel_args )
+{
+	size_t idx;
+	for (idx = 0; idx < sel_args->fields_len; idx++) {
+        if (!strncmp(sel_args->fields[idx], "sum", 3)) {
+           if (!strncmp(sel_args->fields[idx]+4, "id", 2)) {
+                cmd->cmd_args.sel_args.sum += user->id;
+            } else if (!strncmp(sel_args->fields[idx]+4, "age", 3)) {
+                cmd->cmd_args.sel_args.sum += user->age;
+            } 
+        } else if (!strncmp(sel_args->fields[idx], "avg", 3)) {
+            if (!strncmp(sel_args->fields[idx]+4, "id", 2)) {
+                cmd->cmd_args.sel_args.sum += user->id;
+            } else if (!strncmp(sel_args->fields[idx]+4, "age", 3)) {
+                cmd->cmd_args.sel_args.sum += user->age;
+            } 
+                
+    	}
+	}
+}
 
 ///
 /// Print the users for given offset and limit restriction
@@ -221,10 +244,10 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
     	int printed =0;
         for (idx = offset; idx < table->len; idx++) {
             User_t *Utemp=get_User(table, idx);
+            if (limit != -1 && printed >= limit) 
+                	break;
             if(where>=0)
-            {	
-            	if (limit != -1 && printed >= limit) 
-                	break;	
+            {		
             	//perror("where check");
             	whereOK1 = where_ok_check(cmd->cmd_args.sel_args.operator1, cmd->cmd_args.sel_args.field1, cmd->cmd_args.sel_args.num1, cmd->cmd_args.sel_args.str1, Utemp);
             	whereOK = whereOK1; 
@@ -245,10 +268,32 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
             	}
             }
             if(whereOK){
-            	print_user(get_User(table, idx), &(cmd->cmd_args.sel_args));
+            //print_user(get_User(table, idx), &(cmd->cmd_args.sel_args));
+            	if(cmd->cmd_args.sel_args.agg){
+            		cal_agg(cmd, get_User(table, idx), &(cmd->cmd_args.sel_args));
+            	}
+            	else{
+            		print_user(get_User(table, idx), &(cmd->cmd_args.sel_args));
+            	}
             	printed ++;
             }
         }
+        if(cmd->cmd_args.sel_args.agg)
+        {
+        	printf("(");
+    		for (idx = 0; idx < cmd->cmd_args.sel_args.fields_len; idx++) {
+            	if (idx > 0) printf(", ");
+	
+            	if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "avg", 3)) {
+                	printf("%.3f", (double)cmd->cmd_args.sel_args.sum / (double)printed);
+            	} else if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "sum", 3)) {
+                	printf("%d", cmd->cmd_args.sel_args.sum);
+            	} else if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "count", 5)) {
+                	printf("%d", printed);
+            	}
+        	}
+        printf(")\n");	
+    	}
     }
 }
 
@@ -345,9 +390,7 @@ int handle_insert_cmd(Table_t *table, Command_t *cmd) {
 int handle_select_cmd(Table_t *table, Command_t *cmd) {
     cmd->type = SELECT_CMD;
     field_state_handler(cmd, 1);
-	
     print_users(table, NULL, 0, cmd);
-    
     return table->len;
 }
 

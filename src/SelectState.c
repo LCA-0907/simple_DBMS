@@ -18,6 +18,10 @@ void field_state_handler(Command_t *cmd, size_t arg_idx) {
     cmd->cmd_args.sel_args.num1 = -1;
     cmd->cmd_args.sel_args.num2 = -1;
     cmd->cmd_args.sel_args.andor = 0;
+    
+   	cmd->cmd_args.sel_args.agg = 0;
+    cmd->cmd_args.sel_args.sum = 0;
+    
     while(arg_idx < cmd->args_len) {
         if (!strncmp(cmd->args[arg_idx], "*", 1)) {
             add_select_field(cmd, cmd->args[arg_idx]);
@@ -29,7 +33,16 @@ void field_state_handler(Command_t *cmd, size_t arg_idx) {
             add_select_field(cmd, cmd->args[arg_idx]);
         } else if (!strncmp(cmd->args[arg_idx], "age", 3)) {
             add_select_field(cmd, cmd->args[arg_idx]);
-        } else if (!strncmp(cmd->args[arg_idx], "from", 4)) {
+        } else if (!strncmp(cmd->args[arg_idx], "sum", 3)){
+        	add_select_field(cmd, cmd->args[arg_idx]);
+        	cmd->cmd_args.sel_args.agg = 1;
+        } else if (!strncmp(cmd->args[arg_idx], "avg", 2)){
+        	add_select_field(cmd, cmd->args[arg_idx]);
+        	cmd->cmd_args.sel_args.agg = 1;
+        } else if (!strncmp(cmd->args[arg_idx], "count", 5)){
+        	add_select_field(cmd, cmd->args[arg_idx]);
+        	cmd->cmd_args.sel_args.agg = 1;
+        } else if (!strncmp(cmd->args[arg_idx], "from", 4)){
             table_state_handler(cmd, arg_idx+1);
             return;
         } else {
@@ -120,7 +133,8 @@ int check_operator(Command_t *cmd, char* operate, int operator_num){
 }
 
 void where_state_handler(Command_t *cmd, size_t arg_idx) {
-    cmd->cmd_args.sel_args.where++;
+    cmd->cmd_args.sel_args.where = cmd->cmd_args.sel_args.where+1;
+   // printf("where count:%d\n",cmd->cmd_args.sel_args.where);
     int *field;
     char *str;
     double *num;
@@ -290,6 +304,7 @@ void where_state_handler(Command_t *cmd, size_t arg_idx) {
         else if(arg_idx < cmd->args_len
                 && !strncmp(cmd->args[arg_idx], "or", 2)){
                 cmd->cmd_args.sel_args.andor = 2;
+                where_state_handler(cmd, arg_idx+1);
         }
         else if (arg_idx < cmd->args_len
                 && !strncmp(cmd->args[arg_idx], "offset", 6)){

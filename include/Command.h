@@ -36,6 +36,10 @@ typedef struct SelectArgs {
     char str1[50];
     char str2[50];
     int andor; // and=1 or=2 
+    
+    int agg;
+    int sum;
+    
 } SelectArgs_t;
 
 typedef union {
