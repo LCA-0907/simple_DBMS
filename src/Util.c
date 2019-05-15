@@ -408,7 +408,7 @@ int handle_update_cmd(Table_t *table, Command_t *cmd){
 	update_field_handler(cmd, 3);
 	size_t idx;
 	int OK_num=0;
-	int *OK_query=malloc(sizeof(int));
+	size_t *OK_query = malloc(sizeof(size_t));
 	for(idx = 0 ; idx<table->len ; idx++)
 	{
 		int where = cmd->cmd_args.sel_args.where;
@@ -437,32 +437,56 @@ int handle_update_cmd(Table_t *table, Command_t *cmd){
             	{
             		OK_query[OK_num] = idx;
             		OK_num++;
-            		OK_query = realloc (OK_query, sizeof(int) * OK_num);
+            		OK_query = realloc (OK_query, sizeof(size_t) * OK_num);
+
             	}
             	
             }	
         }
         else 
         {
-        	OK_num = table->len;
+        	if(OK_query)
+            {
+            	OK_query[OK_num] = idx;
+            	OK_num++;
+            	OK_query = realloc (OK_query, sizeof(size_t) * OK_num);
+            	
+            }
+        	
 		}
 	}
-	
-	if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "id", 2)){
+	if(!strncmp(cmd->cmd_args.sel_args.fields[0], "id", 2)){
 		if(OK_num > 1)// no use
 			;
-		else
+		else if(OK_num==1)
 		{
+			int repeat=FALSE;
+
 			for(idx=0 ; idx < table->len ; idx++)
-			{
-				if(idx == OK_query[0])
+			{	User_t *Utemp=get_User(table, idx);
+				if (Utemp->id == cmd->cmd_args.sel_args.update_num
+					&& idx != OK_query[0] )
 				{
-					User_t *Utemp=get_User(table, idx);
-					Utemp->id = cmd->cmd_args.sel_args.update_num;
+						repeat=TRUE;
+						break;
+					
 				}
 			}
+			if(repeat)
+				updated_num =0;
+			else
+			{
+				for(idx=0 ; idx < table->len ; idx++)
+			    {	User_t *Utemp=get_User(table, idx);
+				    if (idx == OK_query[0] )
+				    {
+    					Utemp->id = cmd->cmd_args.sel_args.update_num;
+    					updated_num = 1;
+				    }
+			    }
+			}
 		}	
-    }
+    }/*
     else if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "name", 4)){
     	for(idx=0 ; idx < table->len ; idx++)
     	{
@@ -473,9 +497,10 @@ int handle_update_cmd(Table_t *table, Command_t *cmd){
     }
     else if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "age", 3)){
     }
-	
+	*/
+	perror("update");
 	return updated_num;
-
+	
 }
 
 ///
