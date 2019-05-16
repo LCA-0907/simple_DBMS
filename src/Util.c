@@ -486,18 +486,50 @@ int handle_update_cmd(Table_t *table, Command_t *cmd){
 			    }
 			}
 		}	
-    }/*
-    else if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "name", 4)){
-    	for(idx=0 ; idx < table->len ; idx++)
+    }
+    else if(!strncmp(cmd->cmd_args.sel_args.fields[0], "name", 4)){
+    	int ok_idx =0;
+    	for(ok_idx=0 ; ok_idx<OK_num ; ok_idx++)
     	{
-    		
+    		if(ok_idx >= table->len)
+    			printf("error idx\n");
+    		else
+    		{
+    			User_t *Utemp = get_User(table, OK_query[ok_idx]);
+    			strcpy(Utemp->name, cmd->cmd_args.sel_args.update_str);
+    			updated_num++;
+    		}
     	}
     }
-    else if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "email", 5)){
+    else if(!strncmp(cmd->cmd_args.sel_args.fields[0], "email", 5)){
+    	int ok_idx =0;
+    	for(ok_idx=0 ; ok_idx<OK_num ; ok_idx++)
+    	{
+    		if(ok_idx >= table->len)
+    			printf("error idx\n");
+    		else
+    		{
+    			User_t *Utemp = get_User(table, OK_query[ok_idx]);
+    			strcpy (Utemp->email, cmd->cmd_args.sel_args.update_str);
+    			updated_num++;
+    		}
+    	}
     }
-    else if(!strncmp(cmd->cmd_args.sel_args.fields[idx], "age", 3)){
+    else if(!strncmp(cmd->cmd_args.sel_args.fields[0], "age", 3)){
+    	int ok_idx =0;
+    	for(ok_idx=0 ; ok_idx<OK_num ; ok_idx++)
+    	{
+    		if(ok_idx >= table->len)
+    			printf("error idx\n");
+    		else
+    		{
+    			User_t *Utemp = get_User(table, OK_query[ok_idx]);
+    			Utemp->age = cmd->cmd_args.sel_args.update_num;
+    			updated_num++;
+    		}
+    	}
     }
-	*/
+	
 	perror("update");
 	return updated_num;
 	

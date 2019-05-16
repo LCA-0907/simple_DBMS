@@ -83,14 +83,14 @@ void update_field_handler(Command_t *cmd, size_t arg_idx){
            // printf("age\n");
         } else if (!strncmp(cmd->args[arg_idx], "=", 4)){
         	arg_idx += 1;
-        	if(!strncmp(cmd->args[arg_idx], "\"", 1)){// str
+        	 if(atoi(cmd->args[arg_idx])){
+		        cmd->cmd_args.sel_args.update_num = atoi(cmd->args[arg_idx]);
+		      //  printf("num %d\n", atoi(cmd->args[arg_idx]) );
+	        }
+        	else if(!strncmp(cmd->args[arg_idx], "\"", 1)){// str
 		        strcpy(cmd->cmd_args.sel_args.update_str, cmd->args[arg_idx]);
 		     //   printf("str %s\n",cmd->cmd_args.sel_args.update_str);
 		        
-	        }
-	        else if(atoi(cmd->args[arg_idx])){
-		        cmd->cmd_args.sel_args.update_num = atoi(cmd->args[arg_idx]);
-		      //  printf("num %d\n", atoi(cmd->args[arg_idx]) );
 	        }
             //update_table_handler(cmd, arg_idx+1);
         } else if(!strncmp(cmd->args[arg_idx], "where", 5)){
