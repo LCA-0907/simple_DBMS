@@ -67,42 +67,42 @@ int where_ok_check(int op, int field1, int num1, char str1[50], User_t *Utemp)
         {
             if(op==0)//=
             {
-            	if(Utemp->id==num1)
+            	if((double)(Utemp->id)==num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==1)//!=
             {
-            	if(Utemp->id!=num1)
+            	if((double)(Utemp->id)!=num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==2)//>
             {
-            	if(Utemp->id>num1)
+            	if((double)(Utemp->id)>num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==3)//<
             {
-            	if(Utemp->id<num1)
+            	if((double)(Utemp->id)<num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==4)//>=
             {
-            	if(Utemp->id>=num1)
+            	if((double)(Utemp->id)>=num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==5)//<=
             {
-            	if(Utemp->id<=num1)
+            	if((double)(Utemp->id)<=num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
@@ -146,42 +146,42 @@ int where_ok_check(int op, int field1, int num1, char str1[50], User_t *Utemp)
         {
             if(op==0)//=
             {
-            	if(Utemp->age==num1)
+            	if((double)(Utemp->age) ==num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==1)//!=
             {
-            	if(Utemp->age!=num1)
+            	if((double)(Utemp->age)!=num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==2)//>
             {
-            	if(Utemp->age>num1)
+            	if((double)(Utemp->age)>num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==3)//<
             {
-            	if(Utemp->age<num1)
+            	if((double)Utemp->age<num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==4)//>=
             {
-            	if(Utemp->age>=num1)
+            	if((double)(Utemp->age)>=num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
             }
             else if(op==5)//<=
             {
-            	if(Utemp->age<=num1)
+            	if((double)(Utemp->age)<=num1)
             		whereOK=TRUE;
             	else
             		whereOK=FALSE;
@@ -365,7 +365,7 @@ int handle_query_cmd(Table_t *table, Command_t *cmd) {
     	handle_update_cmd(table, cmd);
     	return UPDATE_CMD;
     } else if(!strncmp(cmd->args[0], "delete", 6)){
-    	handle_update_cmd(table, cmd);
+    	handle_delete_cmd(table, cmd);
     	return DELETE_CMD;
     } else {
         return UNRECOG_CMD;
@@ -535,6 +535,84 @@ int handle_update_cmd(Table_t *table, Command_t *cmd){
 	
 	perror("update");
 	return updated_num;
+	
+}
+
+///
+/// handle delete
+///
+int handle_delete_cmd(Table_t *table, Command_t *cmd){
+	int deleted_num=0;
+	update_field_handler(cmd, 3);
+	size_t idx;
+	int OK_num=0;
+	size_t *OK_query = malloc(sizeof(size_t));
+	for(idx = 0 ; idx<table->len ; idx++)
+	{
+		int where = cmd->cmd_args.sel_args.where;
+        int andor = cmd->cmd_args.sel_args.andor;
+        int whereOK = TRUE;
+        int whereOK1 = TRUE;
+        int whereOK2 = TRUE;
+        User_t *Utemp=get_User(table, idx);
+        if(where>=0)
+        {		
+            //perror("where check");
+            whereOK1 = where_ok_check(cmd->cmd_args.sel_args.operator1, cmd->cmd_args.sel_args.field1, cmd->cmd_args.sel_args.num1, cmd->cmd_args.sel_args.str1, Utemp);
+            whereOK = whereOK1; 
+            if(where==1)
+            {
+            	whereOK2 = where_ok_check(cmd->cmd_args.sel_args.operator2, cmd->cmd_args.sel_args.field2, cmd->cmd_args.sel_args.num2, cmd->cmd_args.sel_args.str2, Utemp);
+            	if(andor==1)//and
+            		whereOK = whereOK1 && whereOK2;
+            	else if(andor==2)//or
+            		whereOK = whereOK1 || whereOK2;
+            	
+            }
+            if(whereOK)
+            {
+            	if(OK_query)
+            	{
+            		OK_query[OK_num] = Utemp->id;
+            		OK_num++;
+            		OK_query = realloc (OK_query, sizeof(size_t) * OK_num);
+
+            	}
+            	
+            }	
+        }
+        else 
+        {
+        	if(OK_query)
+            {
+            	OK_query[OK_num] = Utemp->id;
+            	OK_num++;
+            	OK_query = realloc (OK_query, sizeof(size_t) * OK_num);
+            	
+            }
+        	
+		}
+	}
+	int ok_idx;
+	for(ok_idx=0 ; ok_idx<OK_num ; ok_idx++)
+	{
+		for(idx = 0 ; idx<table->len ; idx++)
+	    {	
+		    User_t *Utemp=get_User(table, idx);
+		    if(Utemp->id == OK_query[ok_idx])
+		    {
+		    	int k;
+		    	for(k=idx ; k<table->len-1 ; k++)
+		    	{
+		    		table->users[k]=table->users[k+1];
+		    	}
+		    	table->len--;
+		    }
+	    }
+	}
+	
+	perror("delete");
+	return deleted_num;
 	
 }
 

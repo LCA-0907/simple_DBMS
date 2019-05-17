@@ -22,5 +22,5 @@ int where_ok_check(int op, int field1, int num1, char str1[50], User_t *Utemp);
 void cal_agg(Command_t *cmd, User_t *user, SelectArgs_t *sel_args );
 
 int handle_update_cmd(Table_t *table, Command_t *cmd);
-
+int handle_delete_cmd(Table_t *table, Command_t *cmd);
 #endif
