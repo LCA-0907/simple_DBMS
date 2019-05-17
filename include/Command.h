@@ -11,6 +11,7 @@ enum {
     INSERT_CMD = 100,
     SELECT_CMD,
     UPDATE_CMD,
+    DELETE_CMD,
 };
 
 typedef struct {

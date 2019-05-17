@@ -364,7 +364,10 @@ int handle_query_cmd(Table_t *table, Command_t *cmd) {
     } else if (!strncmp(cmd->args[0], "update", 6)){
     	handle_update_cmd(table, cmd);
     	return UPDATE_CMD;
-    }else {
+    } else if(!strncmp(cmd->args[0], "delete", 6)){
+    	handle_update_cmd(table, cmd);
+    	return DELETE_CMD;
+    } else {
         return UNRECOG_CMD;
     }
 }

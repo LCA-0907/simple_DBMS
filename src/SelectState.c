@@ -218,12 +218,12 @@ void where_state_handler(Command_t *cmd, size_t arg_idx) {
             	int c_idx = 2 + check_operator(cmd, cmd->args[arg_idx], op_num);
             	if(atoi(cmd->args[arg_idx]+c_idx))// id>x
             	{
-            		*num = atoi(cmd->args[arg_idx]+c_idx);
+            		*num = atof(cmd->args[arg_idx]+c_idx);
             	}
             	else if(arg_idx < cmd->args_len) //id> x
             	{
             		arg_idx++;
-            		*num = atoi(cmd->args[arg_idx]);
+            		*num = atof(cmd->args[arg_idx]);
             	}
             	
             }
@@ -233,12 +233,12 @@ void where_state_handler(Command_t *cmd, size_t arg_idx) {
         		int c_idx =check_operator(cmd, cmd->args[arg_idx], op_num);
         		if(atoi(cmd->args[arg_idx] + c_idx)) //>x
         		{
-        			*num = atoi(cmd->args[arg_idx]+c_idx);
+        			*num = atof(cmd->args[arg_idx]+c_idx);
         		}
         		else if(arg_idx < cmd->args_len) // > x check num
             	{	
         			arg_idx++;
-        			*num = atoi(cmd->args[arg_idx]);        			
+        			*num = atof(cmd->args[arg_idx]);        			
         		}
         	}
         	
@@ -319,12 +319,12 @@ void where_state_handler(Command_t *cmd, size_t arg_idx) {
             	int c_idx = 3 + check_operator(cmd, cmd->args[arg_idx], op_num);
             	if(atoi(cmd->args[arg_idx]+c_idx))// 
             	{
-            		*num = atoi(cmd->args[arg_idx]+c_idx);
+            		*num = atof(cmd->args[arg_idx]+c_idx);
             	}
             	else if(arg_idx < cmd->args_len) 
             	{
             		arg_idx++;
-            		*num = atoi(cmd->args[arg_idx]);
+            		*num = atof(cmd->args[arg_idx]);
             	}
             	
             }
@@ -334,12 +334,12 @@ void where_state_handler(Command_t *cmd, size_t arg_idx) {
         		int c_idx =check_operator(cmd, cmd->args[arg_idx], op_num);
         		if(atoi(cmd->args[arg_idx] + c_idx)) //>x
         		{
-        			*num = atoi(cmd->args[arg_idx]+c_idx);
+        			*num = atof(cmd->args[arg_idx]+c_idx);
         		}
         		else if(arg_idx < cmd->args_len) // > x check num
             	{	
         			arg_idx++;
-        			*num = atoi(cmd->args[arg_idx]);        			
+        			*num = atof(cmd->args[arg_idx]);        			
         		}
         	}
            	
