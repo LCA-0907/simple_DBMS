@@ -219,7 +219,6 @@ void cal_agg(Command_t *cmd, User_t *user, SelectArgs_t *sel_args )
             } 
                 
     	}
-    	printf("# %ld %d\n",idx, cmd->cmd_args.sel_args.sum[idx]);
 	}
 }
 
@@ -240,19 +239,43 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
     if (offset == -1) {
         offset = 0;
     }
-    if (idxList) {
-        for (idx = offset; idx < idxListLen; idx++) {
+    if (where < 0) 
+    {
+    	//printf("no where\n");
+        for (idx = offset; idx < table->len; idx++) {
+        	//printf("%ld\n",idx);
             if (limit != -1 && (idx - offset) >= limit) {
                 break;
             }
-            
-           	print_user(get_User(table, idxList[idx]), &(cmd->cmd_args.sel_args));  
+            if(cmd->cmd_args.sel_args.agg){
+            		cal_agg(cmd, get_User(table, idx), &(cmd->cmd_args.sel_args));
+            }
+    	    else{
+           		print_user(get_User(table, idx), &(cmd->cmd_args.sel_args));  
+           	}
         }
+        if(cmd->cmd_args.sel_args.agg && offset == 0 && (limit >= 1 || limit == -1))
+        {
+        	printf("(");
+    		for (idx = 0; idx < cmd->cmd_args.sel_args.fields_len; idx++) {
+            	if (idx > 0) printf(", ");
+	
+            	if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "avg", 3)) {
+                	printf("%.3f", (double)cmd->cmd_args.sel_args.sum[idx] / (double)table->len);
+            	} else if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "sum", 3)) {
+                	printf("%d", cmd->cmd_args.sel_args.sum[idx]);
+            	} else if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "count", 5)) {
+                	printf("%d", table->len);
+            	}
+        	}
+        	printf(")\n");	
+    	}
+        
     } else {
     	int printed =0;
-        for (idx = offset; idx < table->len; idx++) {
+        for (idx = 0; idx < table->len; idx++) {
             User_t *Utemp=get_User(table, idx);
-            if (limit != -1 && printed >= limit) 
+            if (limit != -1 && printed-offset >= limit) 
                 	break;
             if(where>=0)
             {		
@@ -281,7 +304,10 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
             		cal_agg(cmd, get_User(table, idx), &(cmd->cmd_args.sel_args));
             	}
             	else{
-            		print_user(get_User(table, idx), &(cmd->cmd_args.sel_args));
+            		if(printed>=offset)
+            		{
+            			print_user(get_User(table, idx), &(cmd->cmd_args.sel_args));
+            		}
             	}
             	printed ++;
             }
