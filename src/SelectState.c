@@ -20,7 +20,8 @@ void field_state_handler(Command_t *cmd, size_t arg_idx) {
     cmd->cmd_args.sel_args.andor = 0;
     
    	cmd->cmd_args.sel_args.agg = 0;
-    cmd->cmd_args.sel_args.sum = 0;
+    cmd->cmd_args.sel_args.sum = NULL;
+    cmd->cmd_args.sel_args.sum_len = 0;
     while(arg_idx < cmd->args_len) {
         if (!strncmp(cmd->args[arg_idx], "*", 1)) {
             add_select_field(cmd, cmd->args[arg_idx]);

@@ -42,7 +42,8 @@ typedef struct SelectArgs {
     int andor; // and=1 or=2 
     
     int agg;
-    int sum;
+    int* sum;
+    int sum_len;
     
 } SelectArgs_t;
 

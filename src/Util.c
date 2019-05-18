@@ -197,21 +197,29 @@ int where_ok_check(int op, int field1, int num1, char str1[50], User_t *Utemp)
 void cal_agg(Command_t *cmd, User_t *user, SelectArgs_t *sel_args )
 {
 	size_t idx;
+	if(cmd->cmd_args.sel_args.sum_len== 0){
+		cmd->cmd_args.sel_args.sum_len = sel_args->fields_len;
+		cmd->cmd_args.sel_args.sum = malloc(sizeof(int)*sel_args->fields_len);
+	}
+		
 	for (idx = 0; idx < sel_args->fields_len; idx++) {
+		
         if (!strncmp(sel_args->fields[idx], "sum", 3)) {
            if (!strncmp(sel_args->fields[idx]+4, "id", 2)) {
-                cmd->cmd_args.sel_args.sum += user->id;
+                cmd->cmd_args.sel_args.sum[idx] += user->id;
             } else if (!strncmp(sel_args->fields[idx]+4, "age", 3)) {
-                cmd->cmd_args.sel_args.sum += user->age;
+                cmd->cmd_args.sel_args.sum[idx] += user->age;
             } 
-        } else if (!strncmp(sel_args->fields[idx], "avg", 3)) {
+        } 
+        else if (!strncmp(sel_args->fields[idx], "avg", 3)) {
             if (!strncmp(sel_args->fields[idx]+4, "id", 2)) {
-                cmd->cmd_args.sel_args.sum += user->id;
+                cmd->cmd_args.sel_args.sum[idx] += user->id;
             } else if (!strncmp(sel_args->fields[idx]+4, "age", 3)) {
-                cmd->cmd_args.sel_args.sum += user->age;
+                cmd->cmd_args.sel_args.sum[idx] += user->age;
             } 
                 
     	}
+    	printf("# %ld %d\n",idx, cmd->cmd_args.sel_args.sum[idx]);
 	}
 }
 
@@ -286,9 +294,9 @@ void print_users(Table_t *table, int *idxList, size_t idxListLen, Command_t *cmd
             	if (idx > 0) printf(", ");
 	
             	if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "avg", 3)) {
-                	printf("%.3f", (double)cmd->cmd_args.sel_args.sum / (double)printed);
+                	printf("%.3f", (double)cmd->cmd_args.sel_args.sum[idx] / (double)printed);
             	} else if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "sum", 3)) {
-                	printf("%d", cmd->cmd_args.sel_args.sum);
+                	printf("%d", cmd->cmd_args.sel_args.sum[idx]);
             	} else if (!strncmp(cmd->cmd_args.sel_args.fields[idx], "count", 5)) {
                 	printf("%d", printed);
             	}
